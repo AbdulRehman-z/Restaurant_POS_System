@@ -23,7 +23,10 @@ export const updateOrderStatus = ({ orderId, orderStatus }) =>
 // Product Endpoints
 export const getProducts = () => axiosWrapper.get("/api/product");
 export const addProduct = (data) => axiosWrapper.post("/api/product", data);
-export const updateProduct = ({ productId, ...data }) => axiosWrapper.put(`/api/product/${productId}`, data);
+export const updateProduct = ({ productId, ...data }) => {
+  const body = data.formData ? data.formData : data;
+  return axiosWrapper.put(`/api/product/${productId}`, body);
+}
 export const deleteProduct = (productId) => axiosWrapper.delete(`/api/product/${productId}`);
 
 // Category Endpoints

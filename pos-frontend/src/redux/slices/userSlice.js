@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    _id: "",
-    name: "",
-    email : "",
-    phone: "",
-    role: "",
-    isAuth: false
+    _id: "default-admin",
+    name: "Admin User",
+    email: "admin@pos.com",
+    phone: "0000000000",
+    role: "Admin",
+    isAuth: true
 }
 
 const userSlice = createSlice({
@@ -14,7 +14,7 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action) => {
-            const { _id, name, phone, email, role  } = action.payload;
+            const { _id, name, phone, email, role } = action.payload;
             state._id = _id;
             state.name = name;
             state.phone = phone;

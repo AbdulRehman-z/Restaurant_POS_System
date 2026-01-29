@@ -13,8 +13,11 @@ exports.default = async function (context) {
         console.log('   From:', source);
         console.log('   To:', dest);
 
-        // Ensure destination directory exists
-        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        // Ensure destination backend directory exists
+        const destBackendDir = path.dirname(dest);
+        if (!fs.existsSync(destBackendDir)) {
+            fs.mkdirSync(destBackendDir, { recursive: true });
+        }
 
         // Copy recursively
         fs.cpSync(source, dest, { recursive: true });
@@ -22,5 +25,6 @@ exports.default = async function (context) {
         console.log('✅ Backend node_modules copied successfully!');
     } else {
         console.error('❌ Source node_modules not found:', source);
+        console.error('   Run: cd resources/backend && npm install');
     }
 };

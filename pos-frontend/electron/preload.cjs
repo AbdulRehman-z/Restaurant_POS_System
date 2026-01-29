@@ -1,17 +1,23 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
-    // Thermal printer integration
+    // Print functionality
     printReceipt: (receiptData) => ipcRenderer.invoke('print-receipt', receiptData),
 
-    // Backend status check
+    // Backend status
     getBackendStatus: () => ipcRenderer.invoke('get-backend-status'),
 
-    // Platform info
-    platform: process.platform,
+    // Backup & Restore
+    backup: {
+        create: () => ipcRenderer.invoke('backup:create'),
+        list: () => ipcRenderer.invoke('backup:list'),
+        restore: (backupPath) => ipcRenderer.invoke('backup:restore', backupPath),
+        export: () => ipcRenderer.invoke('backup:export'),
+        import: () => ipcRenderer.invoke('backup:import'),
+    },
 
-    // App version (if needed)
-    // appVersion: process.env.npm_package_version
+    // App info
+    getDataPath: () => ipcRenderer.invoke('get-data-path'),
+    platform: process.platform,
+    isElectron: true,
 });

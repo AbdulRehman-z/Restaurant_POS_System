@@ -5,7 +5,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import { Auth, Orders, Tables, Dashboard, POSPage, Receipts } from "./pages";
+import { Orders, Tables, Dashboard, POSPage, Receipts } from "./pages";
 import Header from "./components/shared/Header";
 import { useSelector } from "react-redux";
 import useLoadData from "./hooks/useLoadData";
@@ -23,60 +23,15 @@ function Layout() {
     <>
       {!hideHeaderRoutes.includes(location.pathname) && <Header />}
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoutes>
-              <POSPage />
-            </ProtectedRoutes>
-          }
-        />
-        <Route path="/auth" element={isAuth ? <Navigate to="/" /> : <Auth />} />
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoutes>
-              <Orders />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/tables"
-          element={
-            <ProtectedRoutes>
-              <Tables />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoutes>
-              <Dashboard />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/receipts"
-          element={
-            <ProtectedRoutes>
-              <Receipts />
-            </ProtectedRoutes>
-          }
-        />
-        <Route path="*" element={<div>Not Found</div>} />
+        <Route path="/" element={<POSPage />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/tables" element={<Tables />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/receipts" element={<Receipts />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>
   );
-}
-
-function ProtectedRoutes({ children }) {
-  const { isAuth } = useSelector((state) => state.user);
-  if (!isAuth) {
-    return <Navigate to="/auth" />;
-  }
-
-  return children;
 }
 
 function App() {

@@ -8,6 +8,53 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSearchQuery } from '../../redux/slices/appSlice';
 import { FaSearch, FaTrash, FaPen } from 'react-icons/fa';
 
+// Component to handle image loading with fallback
+const ProductImage = ({ product, categories }) => {
+    const [imageError, setImageError] = useState(false);
+
+    const getFallbackIcon = () => {
+        let catId = typeof product.category_id === 'object' ? product.category_id?._id : product.category_id;
+        const category = categories.find(c => c._id === catId);
+
+        if (category && category.icon) return <span className="text-3xl">{category.icon}</span>;
+
+        const name = product.name.toLowerCase();
+        if (name.includes('pizza')) return <span className="text-3xl">🍕</span>;
+        if (name.includes('burger')) return <span className="text-3xl">🍔</span>;
+        if (name.includes('drink') || name.includes('coke') || name.includes('pepsi')) return <span className="text-3xl">🥤</span>;
+        if (name.includes('fries')) return <span className="text-3xl">🍟</span>;
+
+        if (product.isHotDeal) return <span className="text-3xl">🔥</span>;
+        return <span className="text-3xl">📦</span>;
+    };
+
+    if (product.image_url && !imageError && product.image_url !== 'undefined' && product.image_url !== 'null') {
+        let src = product.image_url;
+
+        // Custom Protocol Logic:
+        // DB stores: /uploads/filename.jpg
+        // We convert to: media://filename.jpg
+        if (src.startsWith('/uploads')) {
+            const filename = src.split('/').pop(); // Get filename
+            src = `media://${filename}?t=${new Date().getTime()}`; // Add timestamp to bust cache
+        }
+
+        return (
+            <img
+                src={src}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                    console.error('Image Error:', e.target.src);
+                    setImageError(true);
+                }}
+            />
+        );
+    }
+
+    return <div className="flex items-center justify-center w-full h-full text-gray-400">{getFallbackIcon()}</div>;
+};
+
 const ProductGrid = ({ onAddToCart }) => {
     const [selectedCategory, setSelectedCategory] = useState(null); // ID or 'HOT_DEALS'
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -18,6 +65,7 @@ const ProductGrid = ({ onAddToCart }) => {
 
     // Forms State
     const [newItem, setNewItem] = useState({ name: '', price: '', image_url: '', specifications: [], isHotDeal: false });
+    const [selectedImage, setSelectedImage] = useState(null);
     const [editingProduct, setEditingProduct] = useState(null);
     const [newCategoryName, setNewCategoryName] = useState("");
     const [newCategoryIcon, setNewCategoryIcon] = useState("");
@@ -40,6 +88,7 @@ const ProductGrid = ({ onAddToCart }) => {
             setIsAddModalOpen(false);
             setIsHotDealCreation(false);
             setNewItem({ name: '', price: '', image_url: '', specifications: [], isHotDeal: false });
+            setSelectedImage(null);
         },
         onError: () => enqueueSnackbar('Failed to add product', { variant: 'error' })
     });
@@ -53,6 +102,7 @@ const ProductGrid = ({ onAddToCart }) => {
             setEditingProduct(null);
             setIsHotDealCreation(false);
             setNewItem({ name: '', price: '', image_url: '', specifications: [], isHotDeal: false });
+            setSelectedImage(null);
         },
         onError: () => enqueueSnackbar('Failed to update product', { variant: 'error' })
     });
@@ -81,25 +131,37 @@ const ProductGrid = ({ onAddToCart }) => {
     // Formatting
     const handleAddSubmit = (e) => {
         e.preventDefault();
-        if (selectedCategory) {
+
+        if (selectedCategory) { // Product or Hot Deal
+            const formData = new FormData();
+            formData.append('name', newItem.name);
+            formData.append('price', Number(newItem.price));
+
+            if (newItem.image_url) formData.append('image_url', newItem.image_url);
+
+            if (selectedImage) {
+                formData.append('image', selectedImage);
+            }
+
+            formData.append('specifications', JSON.stringify(newItem.specifications));
+
+            const isHotDeal = selectedCategory === 'HOT_DEALS' || newItem.isHotDeal; // Force true if creating in Hot Deals
+            formData.append('isHotDeal', String(isHotDeal));
+
+            if (selectedCategory !== 'HOT_DEALS') {
+                formData.append('category_id', selectedCategory._id);
+            }
+
             if (editingProduct) {
                 updateProductMutation.mutate({
                     productId: editingProduct._id,
-                    ...newItem,
-                    category_id: selectedCategory === 'HOT_DEALS' ? undefined : selectedCategory._id,
-                    price: Number(newItem.price),
-                    isHotDeal: selectedCategory === 'HOT_DEALS' || newItem.isHotDeal
+                    formData: formData
                 });
             } else {
-                addProductMutation.mutate({
-                    ...newItem,
-                    category_id: selectedCategory === 'HOT_DEALS' ? undefined : selectedCategory._id,
-                    price: Number(newItem.price),
-                    isHotDeal: selectedCategory === 'HOT_DEALS'
-                });
+                addProductMutation.mutate(formData);
             }
         } else {
-            // Add Category
+            // Add Category - Simple JSON
             addCategoryMutation.mutate({ name: newCategoryName, icon: newCategoryIcon });
         }
     };
@@ -118,25 +180,6 @@ const ProductGrid = ({ onAddToCart }) => {
         );
     }
 
-    const getProductIcon = (product) => {
-        if (product.image_url) return <img src={product.image_url} alt="" className="w-full h-full object-cover" />;
-
-        let catId = typeof product.category_id === 'object' ? product.category_id?._id : product.category_id;
-        const category = categories.find(c => c._id === catId);
-
-        if (category && category.icon) return <span className="text-3xl">{category.icon}</span>;
-
-        // Fallback based on name
-        const name = product.name.toLowerCase();
-        if (name.includes('pizza')) return <span className="text-3xl">🍕</span>;
-        if (name.includes('burger')) return <span className="text-3xl">🍔</span>;
-        if (name.includes('drink') || name.includes('coke') || name.includes('pepsi')) return <span className="text-3xl">🥤</span>;
-        if (name.includes('fries')) return <span className="text-3xl">🍟</span>;
-
-        if (product.isHotDeal) return <span className="text-3xl">🔥</span>;
-        return <span className="text-3xl">📦</span>;
-    };
-
     const handleEditClick = (e, product) => {
         e.stopPropagation();
         setEditingProduct(product);
@@ -146,6 +189,8 @@ const ProductGrid = ({ onAddToCart }) => {
             image_url: product.image_url || '',
             specifications: product.specifications || []
         });
+        setSelectedImage(null); // Reset file input
+
         // Ensure we switch to the category of the product being edited if not already selected
         if (!selectedCategory) {
             if (product.isHotDeal) {
@@ -237,8 +282,8 @@ const ProductGrid = ({ onAddToCart }) => {
                             {/* Card Content */}
                             <div className="flex flex-row p-5 gap-6 items-center h-full">
                                 {/* Thumbnail */}
-                                <div className="w-28 h-28 bg-[#242424] rounded-2xl shrink-0 overflow-hidden flex items-center justify-center shadow-inner">
-                                    {getProductIcon(product)}
+                                <div className="w-28 h-28 bg-[#242424] rounded-2xl shrink-0 overflow-hidden flex items-center justify-center shadow-inner relative">
+                                    <ProductImage product={product} categories={categories} />
                                 </div>
                                 {/* Info */}
                                 <div className="flex flex-col min-w-0 flex-1 justify-center py-2">
@@ -256,8 +301,8 @@ const ProductGrid = ({ onAddToCart }) => {
                                 )}
                             </div>
 
-                            {/* Actions Overlay - Visible on Hover */}
-                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-[-10px] group-hover:translate-y-0">
+                            {/* Actions Overlay */}
+                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-[-10px] group-hover:translate-y-0 z-10">
                                 <button
                                     onClick={(e) => handleEditClick(e, product)}
                                     className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-500 shadow-xl transition-all hover:scale-110"
@@ -278,6 +323,9 @@ const ProductGrid = ({ onAddToCart }) => {
                     {filteredProducts.length === 0 && (
                         <div className="col-span-full py-12 flex flex-col items-center opacity-30">
                             <p className="text-xs uppercase font-bold tracking-widest">No products found</p>
+                            <p className="text-[10px] mt-2 text-gray-500 text-center">
+                                {selectedCategory ? "Click '+ Add Product' above to add items here." : "Start by creating a category with '+ Add Category' above."}
+                            </p>
                         </div>
                     )}
                 </div>
@@ -291,6 +339,7 @@ const ProductGrid = ({ onAddToCart }) => {
                     setEditingProduct(null);
                     setIsHotDealCreation(false);
                     setNewItem({ name: '', price: '', image_url: '', specifications: [], isHotDeal: false });
+                    setSelectedImage(null);
                 }}
                 title={selectedCategory === 'HOT_DEALS' ? (editingProduct ? 'Edit Hot Deal' : 'New Hot Deal') : (selectedCategory ? (editingProduct ? 'Edit Product' : `Add to ${selectedCategory.name}`) : 'New Category')}
             >
@@ -320,13 +369,18 @@ const ProductGrid = ({ onAddToCart }) => {
                             </div>
                             {!isHotDealCreation && (
                                 <div className="space-y-1">
-                                    <label className="text-[10px] uppercase font-bold text-gray-500">Image URL</label>
-                                    <input
-                                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-orange-500 outline-none"
-                                        placeholder="https://..."
-                                        value={newItem.image_url}
-                                        onChange={e => setNewItem({ ...newItem, image_url: e.target.value })}
-                                    />
+                                    <label className="text-[10px] uppercase font-bold text-gray-500">Product Image</label>
+                                    <div className="flex flex-col gap-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-orange-500 outline-none"
+                                            onChange={e => setSelectedImage(e.target.files[0])}
+                                        />
+                                        <div className="text-[10px] text-gray-500">
+                                            {selectedImage ? `Selected: ${selectedImage.name}` : (newItem.image_url ? 'Current image will be kept unless you upload a new one.' : 'No image selected')}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </>

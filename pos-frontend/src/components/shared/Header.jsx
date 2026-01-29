@@ -45,24 +45,23 @@ const Header = () => {
 
       {/* ACTIONS */}
       <div className="flex items-center gap-4">
-        {userData.role === "Admin" && (
-          <>
-            <div
-              onClick={() => navigate("/dashboard")}
-              className="bg-[#1f1f1f] rounded-[15px] p-3 cursor-pointer hover:bg-orange-500/20 hover:text-orange-500 transition-all group"
-              title="Dashboard"
-            >
-              <MdDashboard className="text-[#f5f5f5] text-2xl group-hover:text-orange-500" />
-            </div>
-            <div
-              onClick={() => navigate("/receipts")}
-              className="bg-[#1f1f1f] rounded-[15px] p-3 cursor-pointer hover:bg-orange-500/20 hover:text-orange-500 transition-all group"
-              title="Receipts"
-            >
-              <FaReceipt className="text-[#f5f5f5] text-2xl group-hover:text-orange-500" />
-            </div>
-          </>
-        )}
+        {/* Dashboard - visible to all authenticated users */}
+        <div
+          onClick={() => navigate("/dashboard")}
+          className="bg-[#1f1f1f] rounded-[15px] p-3 cursor-pointer hover:bg-orange-500/20 hover:text-orange-500 transition-all group"
+          title="Dashboard"
+        >
+          <MdDashboard className="text-[#f5f5f5] text-2xl group-hover:text-orange-500" />
+        </div>
+
+        {/* Receipts - visible to all authenticated users */}
+        <div
+          onClick={() => navigate("/receipts")}
+          className="bg-[#1f1f1f] rounded-[15px] p-3 cursor-pointer hover:bg-orange-500/20 hover:text-orange-500 transition-all group"
+          title="Receipts"
+        >
+          <FaReceipt className="text-[#f5f5f5] text-2xl group-hover:text-orange-500" />
+        </div>
 
         <div className="flex items-center gap-3 cursor-pointer bg-[#1f1f1f] py-2 px-4 rounded-[15px] border border-white/5">
           <FaUserCircle className="text-[#f5f5f5] text-3xl" />
@@ -74,13 +73,6 @@ const Header = () => {
               {userData.role || "Staff"}
             </p>
           </div>
-          <div className="h-8 w-px bg-white/10 mx-1"></div>
-          <IoLogOut
-            onClick={handleLogout}
-            className="text-red-500 hover:text-red-400"
-            size={24}
-            title="Logout"
-          />
         </div>
       </div>
     </header>
