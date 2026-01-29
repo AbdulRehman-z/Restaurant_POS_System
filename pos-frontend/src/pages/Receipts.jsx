@@ -187,9 +187,9 @@ const Receipts = () => {
                 >
                     <div className="bg-white text-black p-8 rounded-lg max-w-md mx-auto shadow-2xl ring-1 ring-black/5" style={{ fontFamily: 'monospace' }}>
                         <div className="text-center mb-8">
-                            <h2 className="text-2xl font-black uppercase tracking-tighter">HABIBI Fast Food</h2>
-                            <p className="text-[10px] uppercase font-bold text-gray-500 mt-1">123 Restaurant Street</p>
-                            <p className="text-[10px] uppercase font-bold text-gray-500">Phone: 0300-1234567</p>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter">FryDate Cafe</h2>
+                            <p className="text-[10px] uppercase font-bold text-gray-500 mt-1">Opp PSO PUMP, Mall Road, Peshawar Cantt</p>
+                            <p className="text-[10px] uppercase font-bold text-gray-500">+9231896222727</p>
                         </div>
 
                         <div className="border-y border-black/10 py-4 mb-6 text-[11px] font-bold uppercase leading-relaxed">
@@ -245,7 +245,7 @@ const Receipts = () => {
 
                         <div className="text-center mt-12 text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">
                             <p className="mb-1 text-black">Shukriya!</p>
-                            <p>Software by Codeclub</p>
+                            <p>Software by codeclub.tech</p>
                         </div>
                     </div>
                 </Modal>

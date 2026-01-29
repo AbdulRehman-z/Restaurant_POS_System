@@ -24,12 +24,12 @@ const userSlice = createSlice({
         },
 
         removeUser: (state) => {
-            state._id = "";
-            state.email = "";
-            state.name = "";
-            state.phone = "";
-            state.role = "";
-            state.isAuth = false;
+            state._id = "default-admin";
+            state.email = "admin@pos.com";
+            state.name = "Admin User";
+            state.phone = "0000000000";
+            state.role = "Admin";
+            state.isAuth = true;
         }
     }
 })

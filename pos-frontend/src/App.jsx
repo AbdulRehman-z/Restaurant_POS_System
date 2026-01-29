@@ -14,14 +14,12 @@ import FullScreenLoader from "./components/shared/FullScreenLoader"
 function Layout() {
   const isLoading = useLoadData();
   const location = useLocation();
-  const hideHeaderRoutes = ["/auth"];
-  const { isAuth } = useSelector(state => state.user);
 
   if (isLoading) return <FullScreenLoader />
 
   return (
     <>
-      {!hideHeaderRoutes.includes(location.pathname) && <Header />}
+      <Header />
       <Routes>
         <Route path="/" element={<POSPage />} />
         <Route path="/orders" element={<Orders />} />

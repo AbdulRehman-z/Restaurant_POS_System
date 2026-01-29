@@ -1,6 +1,7 @@
 const config = require("../config/config");
 
 const globalErrorHandler = (err, req, res, next) => {
+    console.error("❌ Backend Error:", err);
     const statusCode = err.statusCode || 500;
 
     return res.status(statusCode).json({

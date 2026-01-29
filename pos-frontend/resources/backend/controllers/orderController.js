@@ -7,7 +7,7 @@ const addOrder = async (req, res, next) => {
     const { customerDetails, items, bills, items: rawItems, table, paymentMethod } = req.body; // Adapt to whatever frontend sends, or standardise.
 
     // Generate Order ID: ORD-TIMESTAMP-RANDOM
-    const order_id = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const order_id = `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`;
 
     // Map items to schema if needed, or assume frontend sends correct structure.
     // Ideally frontend should send items with product_id, name, qty, price.

@@ -13,8 +13,8 @@
     "electron:build": "node scripts/prepare-backend-final.cjs && vite build && electron-builder"
   },
   "build": {
-    "appId": "com.habibipos.app",
-    "productName": "Habibi POS",
+    "appId": "com.fryDate.app",
+    "productName": "FryDate POS",
     "directories": {
       "output": "release"
     },

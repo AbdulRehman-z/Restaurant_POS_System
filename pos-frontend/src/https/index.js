@@ -1,4 +1,6 @@
-import { axiosWrapper } from "./axiosWrapper";
+import { axiosWrapper, BACKEND_URL } from "./axiosWrapper";
+
+export { BACKEND_URL };
 
 // API Endpoints
 

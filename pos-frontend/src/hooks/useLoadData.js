@@ -17,10 +17,10 @@ const useLoadData = () => {
         const { _id, name, email, phone, role } = data.data;
         dispatch(setUser({ _id, name, email, phone, role }));
       } catch (error) {
-        dispatch(removeUser());
-        Navigate("/auth");
-        console.log(error);
-      }finally{
+        // dispatch(removeUser());
+        // navigate("/auth");
+        console.log("Auth fetch failed, using default user state", error);
+      } finally {
         setIsLoading(false);
       }
     };

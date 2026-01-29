@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProducts, addProduct, updateProduct, deleteProduct, getCategories, addCategory } from '../../https';
+import { getProducts, addProduct, updateProduct, deleteProduct, getCategories, addCategory, BACKEND_URL } from '../../https';
 import { enqueueSnackbar } from 'notistack';
 import Modal from '../ui/Modal';
 
@@ -31,12 +31,17 @@ const ProductImage = ({ product, categories }) => {
     if (product.image_url && !imageError && product.image_url !== 'undefined' && product.image_url !== 'null') {
         let src = product.image_url;
 
-        // Custom Protocol Logic:
-        // DB stores: /uploads/filename.jpg
-        // We convert to: media://filename.jpg
-        if (src.startsWith('/uploads')) {
+        // DB stores: /upload/filename.jpg
+        if (src.startsWith('/upload')) {
             const filename = src.split('/').pop(); // Get filename
-            src = `media://${filename}?t=${new Date().getTime()}`; // Add timestamp to bust cache
+
+            // Check if we are running in Electron
+            if (window.electronAPI) {
+                src = `media://${filename}?t=${new Date().getTime()}`;
+            } else {
+                // In browser development, use the backend URL directly
+                src = `${BACKEND_URL}${src}`;
+            }
         }
 
         return (
@@ -58,6 +63,8 @@ const ProductImage = ({ product, categories }) => {
 const ProductGrid = ({ onAddToCart }) => {
     const [selectedCategory, setSelectedCategory] = useState(null); // ID or 'HOT_DEALS'
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
     const [isHotDealCreation, setIsHotDealCreation] = useState(false);
 
     const searchQuery = useSelector((state) => state.app.searchQuery);
@@ -112,6 +119,8 @@ const ProductGrid = ({ onAddToCart }) => {
         onSuccess: () => {
             queryClient.invalidateQueries(['products']);
             enqueueSnackbar('Product deleted', { variant: 'success' });
+            setIsDeleteModalOpen(false);
+            setProductToDelete(null);
         },
         onError: () => enqueueSnackbar('Failed to delete product', { variant: 'error' })
     });
@@ -146,11 +155,15 @@ const ProductGrid = ({ onAddToCart }) => {
             formData.append('specifications', JSON.stringify(newItem.specifications));
 
             const isHotDeal = selectedCategory === 'HOT_DEALS' || newItem.isHotDeal; // Force true if creating in Hot Deals
-            formData.append('isHotDeal', String(isHotDeal));
+            formData.append('isHotDeal', String(!!isHotDeal));
 
-            if (selectedCategory !== 'HOT_DEALS') {
+            // Only append category_id if it's a real MongoDB ID
+            if (selectedCategory && selectedCategory._id && selectedCategory._id !== 'HOT_DEALS') {
                 formData.append('category_id', selectedCategory._id);
             }
+
+            console.log("📤 Submitting Product:", Object.fromEntries(formData));
+            if (selectedImage) console.log("📷 Image file to upload:", selectedImage.name);
 
             if (editingProduct) {
                 updateProductMutation.mutate({
@@ -206,9 +219,8 @@ const ProductGrid = ({ onAddToCart }) => {
 
     const handleDeleteClick = (e, product) => {
         e.stopPropagation();
-        if (window.confirm(`Are you sure you want to delete ${product.name}?`)) {
-            deleteProductMutation.mutate(product._id);
-        }
+        setProductToDelete(product);
+        setIsDeleteModalOpen(true);
     };
 
     if (productsLoading || categoriesLoading) return <div className="text-white p-6">Loading resources...</div>;
@@ -367,22 +379,20 @@ const ProductGrid = ({ onAddToCart }) => {
                                     required
                                 />
                             </div>
-                            {!isHotDealCreation && (
-                                <div className="space-y-1">
-                                    <label className="text-[10px] uppercase font-bold text-gray-500">Product Image</label>
-                                    <div className="flex flex-col gap-2">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-orange-500 outline-none"
-                                            onChange={e => setSelectedImage(e.target.files[0])}
-                                        />
-                                        <div className="text-[10px] text-gray-500">
-                                            {selectedImage ? `Selected: ${selectedImage.name}` : (newItem.image_url ? 'Current image will be kept unless you upload a new one.' : 'No image selected')}
-                                        </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] uppercase font-bold text-gray-500">Product Image (Optional)</label>
+                                <div className="flex flex-col gap-2">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-orange-500 outline-none"
+                                        onChange={e => setSelectedImage(e.target.files[0])}
+                                    />
+                                    <div className="text-[10px] text-gray-500">
+                                        {selectedImage ? `Selected: ${selectedImage.name}` : (newItem.image_url ? 'Current image will be kept unless you upload a new one.' : 'No image selected')}
                                     </div>
                                 </div>
-                            )}
+                            </div>
                         </>
                     ) : (
                         <>
@@ -411,6 +421,47 @@ const ProductGrid = ({ onAddToCart }) => {
                         {isHotDealCreation ? (editingProduct ? 'Update Hot Deal' : 'Save Hot Deal') : (selectedCategory ? (editingProduct ? 'Update Product' : 'Save Product') : 'Create Category')}
                     </button>
                 </form>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setProductToDelete(null);
+                }}
+                title="Confirm Delete"
+            >
+                <div className="space-y-6">
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white shrink-0">
+                            <FaTrash />
+                        </div>
+                        <div>
+                            <p className="text-white font-bold">Delete {productToDelete?.name}?</p>
+                            <p className="text-gray-500 text-xs">This action cannot be undone and will permanently remove this item.</p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => {
+                                setIsDeleteModalOpen(false);
+                                setProductToDelete(null);
+                            }}
+                            className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg font-bold uppercase tracking-widest transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => deleteProductMutation.mutate(productToDelete?._id)}
+                            disabled={deleteProductMutation.isPending}
+                            className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white py-3 rounded-lg font-bold uppercase tracking-widest shadow-lg shadow-red-600/20 transition-all"
+                        >
+                            {deleteProductMutation.isPending ? 'Deleting...' : 'Delete'}
+                        </button>
+                    </div>
+                </div>
             </Modal>
         </div>
     );

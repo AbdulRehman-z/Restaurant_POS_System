@@ -6,11 +6,11 @@ const BillReceipt = React.forwardRef(({ cart, customer, totals, invoiceId, payme
             width: '80mm',
             margin: '0 auto',
             fontFamily: "'Courier New', Courier, monospace",
-            fontSize: '40px',  // Increased base font
-            padding: '5mm',
+            fontSize: '12px',
+            padding: '4mm',
             backgroundColor: 'white',
             color: 'black',
-            lineHeight: '1.4'
+            lineHeight: '1.2'
         }}>
             <style>
                 {`
@@ -23,34 +23,30 @@ const BillReceipt = React.forwardRef(({ cart, customer, totals, invoiceId, payme
                             margin: 0;
                             padding: 0;
                         }
-                        * {
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                        }
                     }
                 `}
             </style>
 
             {/* HEADER */}
-            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                <h1 style={{ margin: '0', fontSize: '24px', fontWeight: 'bold', letterSpacing: '1px' }}>
-                    Fry Date Cafe
+            <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                <h1 style={{ margin: '0', fontSize: '20px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    FryDate Cafe
                 </h1>
-                <p style={{ margin: '4px 0', fontSize: '14px' }}>Sadar Food Street</p>
-                <p style={{ margin: '4px 0', fontSize: '14px' }}>Tel: 0300-1234567</p>
+                <p style={{ margin: '2px 0', fontSize: '11px', fontWeight: '550' }}>Opp PSO PUMP, Mall Road, Peshawar Cantt</p>
+                <p style={{ margin: '2px 0', fontSize: '11px', fontWeight: '550' }}>TEL: +9231896222727</p>
             </div>
 
             {/* DIVIDER */}
-            <div style={{ borderTop: '2px dashed #000', margin: '8px 0' }}></div>
+            <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }}></div>
 
             {/* ORDER INFO */}
-            <div style={{ marginBottom: '12px', fontSize: '14px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontWeight: 'bold' }}>Invoice #:</span>
+            <div style={{ marginBottom: '8px', fontSize: '11px', fontWeight: '550' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <span style={{ letterSpacing: '1px' }}>Bill No:</span>
                     <span style={{ fontWeight: 'bold' }}>{invoiceId || '---'}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span>Date:</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <span style={{ letterSpacing: '1px' }}>Order Time:</span>
                     <span>{new Date().toLocaleString('en-US', {
                         year: 'numeric',
                         month: '2-digit',
@@ -60,72 +56,75 @@ const BillReceipt = React.forwardRef(({ cart, customer, totals, invoiceId, payme
                         hour12: true
                     })}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span>Customer:</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <span style={{ letterSpacing: '1px' }}>CUSTOMER:</span>
                     <span>{customer.name || 'Walk-in'}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span>Table:</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
+                    <span style={{ letterSpacing: '1px' }}>TABLE No:</span>
                     <span>{customer.table || '0'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Payment:</span>
-                    <span>{paymentMethod || 'Cash'}</span>
+                    <span style={{ letterSpacing: '1px' }}>PAYMENT Mode:</span>
+                    <span style={{ fontWeight: 'bold' }}>{paymentMethod || 'CASH'}</span>
                 </div>
             </div>
 
             {/* DIVIDER */}
-            <div style={{ borderTop: '2px dashed #000', margin: '8px 0' }}></div>
+            <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }}></div>
 
             {/* ITEMS TABLE */}
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px', fontSize: '14px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '8px', fontSize: '11px' }}>
                 <thead>
-                    <tr style={{ borderBottom: '2px solid #000' }}>
-                        <th style={{ textAlign: 'left', padding: '6px 0', fontWeight: 'bold' }}>Item</th>
-                        <th style={{ textAlign: 'center', padding: '6px 0', fontWeight: 'bold' }}>Qty</th>
-                        <th style={{ textAlign: 'right', padding: '6px 0', fontWeight: 'bold' }}>Price</th>
-                        <th style={{ textAlign: 'right', padding: '6px 0', fontWeight: 'bold' }}>Total</th>
+                    <tr style={{ borderBottom: '1px solid #000' }}>
+                        <th style={{ textAlign: 'left', padding: '4px 0', letterSpacing: '1px' }}>ITEM</th>
+                        <th style={{ textAlign: 'center', padding: '4px 0', letterSpacing: '1px' }}>QTY</th>
+                        <th style={{ textAlign: 'right', padding: '4px 0', letterSpacing: '1px' }}>TOTAL</th>
                     </tr>
                 </thead>
                 <tbody>
                     {cart.map((item, index) => (
-                        <tr key={index} style={{ borderBottom: '1px dashed #999' }}>
-                            <td style={{ padding: '8px 0', maxWidth: '100px', wordWrap: 'break-word' }}>{item.name}</td>
-                            <td style={{ textAlign: 'center', padding: '8px 0' }}>{item.qty}</td>
-                            <td style={{ textAlign: 'right', padding: '8px 0' }}>{item.price}</td>
-                            <td style={{ textAlign: 'right', padding: '8px 0', fontWeight: 'bold' }}>{item.price * item.qty}</td>
+                        <tr key={index}>
+                            <td style={{ padding: '4px 0', maxWidth: '120px', fontWeight: '550' }}>
+                                {item.name}
+                                <div style={{ fontSize: '11px', fontWeight: '550',color: '#000000ff' }}>unit price: {item.price}</div>
+                            </td>
+                            <td style={{ textAlign: 'center', padding: '4px 0', verticalAlign: 'top' }}>{item.qty}</td>
+                            <td style={{ textAlign: 'right', padding: '4px 0', verticalAlign: 'top', fontWeight: 'bold' }}>{item.price * item.qty}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
             {/* DIVIDER */}
-            <div style={{ borderTop: '2px solid #000', margin: '8px 0' }}></div>
+            <div style={{ borderTop: '1px solid #000', margin: '6px 0' }}></div>
 
             {/* TOTALS */}
-            <div style={{ marginBottom: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
-                    <span>TOTAL:</span>
+            <div style={{ marginBottom: '8px', fontWeight: '600' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: 'bold', margin: '4px 0' }}>
+                    <span style={{ letterSpacing: '1px' }}>NET TOTAL:</span>
                     <span>PKR {totals.total}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '4px' }}>
-                    <span>Received:</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '2px' }}>
+                    <span style={{ letterSpacing: '1px' }}>RECEIVED:</span>
                     <span>PKR {totals.received}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                    <span>Change:</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                    <span>CHANGE:</span>
                     <span>PKR {totals.change >= 0 ? totals.change.toFixed(2) : '0.00'}</span>
                 </div>
             </div>
 
             {/* DIVIDER */}
-            <div style={{ borderTop: '2px dashed #000', margin: '8px 0' }}></div>
+            <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }}></div>
 
             {/* FOOTER */}
-            <div style={{ textAlign: 'center', fontSize: '14px', marginTop: '12px' }}>
-                <p style={{ margin: '4px 0', fontWeight: 'bold' }}>Thank you for dining!</p>
-                <p style={{ margin: '4px 0' }}>Please visit again</p>
-                <p style={{ margin: '8px 0', fontSize: '12px', color: '#666' }}>Software by Codeclub</p>
+            <div style={{ textAlign: 'center', fontSize: '11px', marginTop: '8px', paddingBottom: '10mm' }}>
+                <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Shukriya for Dining With Us!</p>
+                <p style={{ margin: '2px 0', fontWeight: '600' }}>PLEASE VISIT AGAIN</p>
+                <div style={{ marginTop: '10px', fontWeight: '600', fontSize: '9px', borderTop: '1px solid #2e2e2eff', paddingTop: '4px' }}>
+                    Software by codeclub.tech
+                </div>
             </div>
         </div>
     );

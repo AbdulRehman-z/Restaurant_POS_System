@@ -18,18 +18,24 @@ const createProduct = async (req, res, next) => {
         if (req.file) {
             // Construct the URL to access the file
             // Note: In production Electron, this will be served from the persistent storage
-            image_url = `/uploads/${req.file.filename}`;
+            image_url = `/upload/${req.file.filename}`;
         }
 
         // Parse fields if coming from FormData (they come as strings)
         if (typeof specifications === 'string') {
             try { specifications = JSON.parse(specifications); } catch (e) { specifications = []; }
         }
-        if (typeof category_id === 'string' && (category_id === 'null' || category_id === 'undefined')) {
+        if (typeof category_id === 'string' && (category_id === 'null' || category_id === 'undefined' || category_id === '' || category_id === 'HOT_DEALS')) {
             category_id = undefined;
         }
         if (isHotDeal === 'true') isHotDeal = true;
-        if (isHotDeal === 'false') isHotDeal = false;
+        else isHotDeal = false; // Default to false for 'undefined', 'null', etc.
+
+
+        // Ensure price is a number
+        if (price) {
+            price = Number(price);
+        }
 
         if (!name || (!category_id && !isHotDeal) || !price) {
             throw createHttpError(400, "Name, Price and (Category ID or Hot Deal flag) are required");
@@ -58,7 +64,7 @@ const updateProduct = async (req, res, next) => {
 
         // Handle file upload
         if (req.file) {
-            updateData.image_url = `/uploads/${req.file.filename}`;
+            updateData.image_url = `/upload/${req.file.filename}`;
         }
 
         // Parse fields if coming from FormData
@@ -66,7 +72,17 @@ const updateProduct = async (req, res, next) => {
             try { updateData.specifications = JSON.parse(updateData.specifications); } catch (e) { }
         }
         if (updateData.isHotDeal === 'true') updateData.isHotDeal = true;
-        if (updateData.isHotDeal === 'false') updateData.isHotDeal = false;
+        else if (updateData.isHotDeal === 'false' || updateData.isHotDeal === 'undefined') updateData.isHotDeal = false;
+
+        // Handle category_id if it's 'null', 'undefined' or empty string from FormData
+        if (updateData.category_id === 'null' || updateData.category_id === 'undefined' || updateData.category_id === '' || updateData.category_id === 'HOT_DEALS') {
+            updateData.category_id = undefined;
+        }
+
+        // Ensure price is a number
+        if (updateData.price) {
+            updateData.price = Number(updateData.price);
+        }
 
         const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
         if (!updatedProduct) {

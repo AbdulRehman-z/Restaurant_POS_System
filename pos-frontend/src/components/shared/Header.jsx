@@ -4,10 +4,6 @@ import { FaUserCircle } from "react-icons/fa";
 import { FaReceipt } from "react-icons/fa6";
 import logo from "../../assets/images/logo.png";
 import { useDispatch, useSelector } from "react-redux";
-import { IoLogOut } from "react-icons/io5";
-import { useMutation } from "@tanstack/react-query";
-import { logout } from "../../https";
-import { removeUser } from "../../redux/slices/userSlice";
 import { setSearchQuery } from "../../redux/slices/appSlice";
 import { useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
@@ -17,29 +13,13 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const logoutMutation = useMutation({
-    mutationFn: () => logout(),
-    onSuccess: (data) => {
-      console.log(data);
-      dispatch(removeUser());
-      navigate("/auth");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
-
   return (
     <header className="flex justify-between items-center py-4 px-8 bg-[#1a1a1a]">
       {/* LOGO */}
       <div onClick={() => navigate("/")} className="flex items-center gap-2 cursor-pointer">
         <img src={logo} className="h-8 w-8" alt="restro logo" />
         <h1 className="text-lg font-semibold text-[#f5f5f5] tracking-wide">
-          Restro
+          FryDate Cafe
         </h1>
       </div>
 

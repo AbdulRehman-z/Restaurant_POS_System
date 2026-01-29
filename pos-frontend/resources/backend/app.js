@@ -22,9 +22,9 @@ app.use(express.json()); // parse incoming request in json format
 app.use(cookieParser())
 
 // Serve Static Uploads
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
-app.use('/uploads', express.static(uploadDir));
-console.log('📂 Serving uploads from:', uploadDir);
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'upload');
+app.use('/upload', express.static(uploadDir));
+console.log('📂 Serving upload from:', uploadDir);
 
 
 // Root Endpoint
