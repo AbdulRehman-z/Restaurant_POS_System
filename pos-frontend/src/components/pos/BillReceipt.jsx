@@ -184,6 +184,7 @@ const BillReceipt = React.forwardRef(
 										textAlign: "center",
 										padding: "4px 0",
 										verticalAlign: "top",
+										fontWeight: "bold",
 									}}
 								>
 									{item.qty}
@@ -258,7 +259,7 @@ const BillReceipt = React.forwardRef(
 					}}
 				>
 					<p style={{ margin: "2px 0", fontWeight: "bold" }}>
-						Shukriya for Dining With Us!
+						Thank you for Dining With Us!
 					</p>
 					<p style={{ margin: "2px 0", fontWeight: "600" }}>
 						PLEASE VISIT AGAIN

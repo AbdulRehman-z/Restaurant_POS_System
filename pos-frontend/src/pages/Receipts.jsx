@@ -189,7 +189,7 @@ const Receipts = () => {
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-black uppercase tracking-tighter">FryDate Cafe</h2>
                             <p className="text-[10px] uppercase font-bold text-gray-500 mt-1">Opp PSO PUMP, Mall Road, Peshawar Cantt</p>
-                            <p className="text-[10px] uppercase font-bold text-gray-500">+9231896222727</p>
+                            <p className="text-[10px] uppercase font-bold text-gray-500">+923189622272</p>
                         </div>
 
                         <div className="border-y border-black/10 py-4 mb-6 text-[11px] font-bold uppercase leading-relaxed">

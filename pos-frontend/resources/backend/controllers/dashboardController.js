@@ -13,6 +13,13 @@ const getDashboardStats = async (req, res, next) => {
             // Custom date range
             const start = new Date(startDate);
             const end = new Date(endDate);
+
+            if (isNaN(start) || isNaN(end)) {
+                const error = new Error("Invalid date range provided");
+                error.statusCode = 400;
+                throw error;
+            }
+
             end.setHours(23, 59, 59, 999); // Include full end date
             dateFilter = { timestamp: { $gte: start, $lte: end } };
 
@@ -22,20 +29,30 @@ const getDashboardStats = async (req, res, next) => {
                 groupFormat = "%Y-%m"; // Group by month for ranges > 60 days
             }
         } else if (period === 'day') {
-            const today = new Date(now.setHours(0, 0, 0, 0));
+            const today = new Date(now);
+            today.setHours(0, 0, 0, 0);
             dateFilter = { timestamp: { $gte: today } };
-            groupFormat = "%Y-%m-%d"; // Daily grouping for consistency
+            groupFormat = "%Y-%m-%d";
         } else if (period === 'week') {
-            const lastWeek = new Date(now.setDate(now.getDate() - 7));
+            const lastWeek = new Date(now);
+            lastWeek.setDate(now.getDate() - 7);
+            lastWeek.setHours(0, 0, 0, 0); // Start from midnight
             dateFilter = { timestamp: { $gte: lastWeek } };
         } else if (period === 'month') {
-            const lastMonth = new Date(now.setMonth(now.getMonth() - 1));
+            const lastMonth = new Date(now);
+            lastMonth.setMonth(now.getMonth() - 1);
+            lastMonth.setHours(0, 0, 0, 0); // Start from midnight
             dateFilter = { timestamp: { $gte: lastMonth } };
         } else if (period === 'year') {
-            const lastYear = new Date(now.setFullYear(now.getFullYear() - 1));
+            const lastYear = new Date(now);
+            lastYear.setFullYear(now.getFullYear() - 1);
+            lastYear.setHours(0, 0, 0, 0); // Start from midnight
             dateFilter = { timestamp: { $gte: lastYear } };
-            groupFormat = "%Y-%m"; // Group by month for yearly view
+            groupFormat = "%Y-%m";
         }
+
+        console.log(`📊 Dashboard Stats Request: Period=${period}, Start=${startDate}, End=${endDate}`);
+        console.log("📅 Date Filter Generated:", JSON.stringify(dateFilter, null, 2));
 
         // Base Match Stage
         const matchStage = { status: 'completed', ...dateFilter };
