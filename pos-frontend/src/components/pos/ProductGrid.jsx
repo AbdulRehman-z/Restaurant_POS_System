@@ -63,7 +63,7 @@ const ProductImage = ({ product, categories }) => {
     return <div className="flex items-center justify-center w-full h-full text-gray-400">{getFallbackIcon()}</div>;
 };
 
-const ProductGrid = ({ onAddToCart }) => {
+const ProductGrid = ({ onAddToCart, onRemoveFromCart }) => {
     const [selectedCategory, setSelectedCategory] = useState(null); // ID or 'HOT_DEALS'
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -123,6 +123,7 @@ const ProductGrid = ({ onAddToCart }) => {
     const deleteProductMutation = useMutation({
         mutationFn: deleteProduct,
         onSuccess: () => {
+            if (productToDelete) onRemoveFromCart(productToDelete._id);
             queryClient.invalidateQueries(['products']);
             enqueueSnackbar('Product deleted', { variant: 'success' });
             setIsDeleteModalOpen(false);
@@ -159,6 +160,7 @@ const ProductGrid = ({ onAddToCart }) => {
     const deleteCategoryMutation = useMutation({
         mutationFn: deleteCategory,
         onSuccess: () => {
+            if (categoryToDelete) onRemoveFromCart(null, categoryToDelete._id);
             queryClient.invalidateQueries(['categories']);
             queryClient.invalidateQueries(['products']);
             enqueueSnackbar('Category and associated products deleted', { variant: 'success' });
